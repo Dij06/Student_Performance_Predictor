@@ -1,149 +1,55 @@
-# Student Performance Prediction & Risk Dashboard
+# Student Performance Prediction Dashboard
 
-[![CI Pipeline](https://github.com/Dij06/Student_Performance_Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/Dij06/Student_Performance_Predictor/actions)
-![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B.svg)
-![Random Forest](https://img.shields.io/badge/Model-Random%20Forest-green.svg)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Dij06/Student_Performance_Predictor/blob/main/Student_Performance_Prediction.ipynb)
+An AI-powered academic decision-support platform built using **Streamlit** and a **Random Forest Classifier** trained on the UCI Student Performance dataset.
 
-An AI-powered academic decision-support platform built using **Streamlit** and a **Random Forest Classifier** trained on the UCI Student Performance benchmark dataset.
-
-The system predicts final exam outcomes (Pass vs. Fail), visualizes multi-cohort exploratory data (1,044 students across Mathematics and Portuguese), benchmarks machine learning algorithms, explains individual predictions via SHAP, and simulates how study habits and attendance influence passing chances.
+The system predicts student outcomes (Pass vs. Fail), visualizes multi-cohort data across Mathematics and Portuguese courses, and simulates how study habits and attendance influence passing chances.
 
 ---
 
-## Clean Modular Architecture
+## Clean Modular Structure
 
 ```text
-Student_Performance_Streamlit/
-│
-├── .github/workflows/
-│   └── ci.yml                        # GitHub Actions automated CI test workflow
+Student_Performance_Predictor/
 │
 ├── .streamlit/
-│   └── config.toml                   # Streamlit custom theme & server configuration
+│   └── config.toml                   # Streamlit UI theme configuration
 │
 ├── data/
 │   ├── student-mat.csv               # Mathematics course dataset (395 students)
-│   ├── student-por.csv               # Portuguese language dataset (649 students)
-│   └── student.txt                   # Attribute documentation dictionary
+│   └── student-por.csv               # Portuguese language dataset (649 students)
 │
 ├── modules/
 │   ├── member1_data_analysis.py      # [MEMBER 1] Multi-dataset loading, EDA & cohort filtering
-│   ├── member2_ml_models.py          # [MEMBER 2] 3-Stage ML prediction, SHAP XAI & evaluation
+│   ├── member2_ml_models.py          # [MEMBER 2] ML prediction, probability calibration & evaluation
 │   └── member3_ui_views.py           # [MEMBER 3] Clean Streamlit UI, styling & What-If simulator
 │
-├── tests/
-│   ├── __init__.py
-│   └── test_pipeline.py              # Automated unit tests for data, ML, and simulations
-│
 ├── app.py                            # Main Streamlit application entry point
-├── Dockerfile                        # Containerized production deployment
-├── .dockerignore                     # Docker build exclusions
 ├── requirements.txt                  # Python package dependencies
-├── README.md                         # Documentation
+├── .python-version                   # Python runtime pinning (3.11)
+├── README.md                         # Project documentation
 └── .gitignore                        # Git ignore rules
 ```
 
 ---
 
-## Team Roles & Ownership
+## Features
 
-### Member 1: Dataset Analysis & Exploratory Data Analysis (EDA)
-* **File:** `modules/member1_data_analysis.py`
-* **Responsibilities:**
-  * Multi-course dataset loader supporting **Mathematics (395)**, **Portuguese (649)**, or **Combined (1,044)** records.
-  * Cohort KPI metrics (pass rate, average marks, absences, at-risk count).
-  * Grade progression analysis ($G_1 \rightarrow G_2 \rightarrow G_3$).
-  * Study hours, absences, and past failure distributions.
-  * Family background, parental education, and college aspiration impacts.
-  * Interactive cohort filter with 1-click CSV export for educators.
-* **Dashboard Tab:** **Data Analysis & Graphs**
-
-### Member 2: Machine Learning Models, Evaluation & Explainability
-* **File:** `modules/member2_ml_models.py`
-* **Responsibilities:**
-  * **3-Stage Academic Early Warning System:**
-    * **Stage 1 (Start of Year):** Predicts risk on Day 1 using habits and background before any exams occur.
-    * **Stage 2 (Midterm):** Incorporates Exam 1 ($G_1$) for mid-semester intervention.
-    * **Stage 3 (End of Term):** Integrates Exam 1, Exam 2 ($G_2$), and score momentum ($G_2 - G_1$).
-  * **Class Imbalance Handling:** Random Forest trained with `class_weight='balanced'`.
-  * **Probability Calibration:** Platt Scaling via `CalibratedClassifierCV` ensures output probabilities reflect true posterior chances.
-  * **Zero Data Leakage:** Honest evaluation strictly on a held-out 20% stratified test set.
-  * **Explainable AI (XAI):** Integrated **SHAP (TreeExplainer)** providing local, per-student feature contribution breakdowns.
-  * **Cached Benchmarking:** 5-Fold Stratified Cross-Validation benchmark against Decision Tree and Logistic Regression.
-* **Dashboard Tab:** **Model Evaluation & Results**
-
-### Member 3: Dashboard Design, User Experience & Integration
-* **File:** `modules/member3_ui_views.py` and `app.py`
-* **Responsibilities:**
-  * Clean UI layout with simple, plain-English wording and zero clutter.
-  * Timing stage selector (Start of School Year, Midterm, End of Term).
-  * Student preset profiles for quick testing.
-  * Live student assessment form, calibrated pass chance gauges, and strength/risk breakdowns.
-  * Downloadable student evaluation report (.txt).
-  * What-If Habit and Attendance Sensitivity Simulator.
-* **Dashboard Tabs:** **Student Pass Predictor** & **What-If Habit Simulator**
+1. **Student Pass Predictor:** Predicts pass/fail results with calibrated probability, risk level, and key contributing factors across school year stages (Start of Year, Midterm, End of Term).
+2. **Data Analysis & Graphs:** Interactive exploratory charts for Mathematics, Portuguese, or Combined cohorts, with grade progression trends and CSV export.
+3. **Model Evaluation & Results:** Real-world metrics evaluated on held-out test students with confusion matrix and benchmarks.
+4. **What-If Habit Simulator:** Tests how improving weekly study hours or reducing missed days impacts passing chances.
 
 ---
 
 ## How to Run
 
-### Option 1: Run Locally
-
-1. **Install Dependencies:**
+1. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Launch Application:**
+2. **Run the dashboard:**
    ```bash
    streamlit run app.py
    ```
    Open your browser at `http://localhost:8501`.
-
-3. **Run Automated Unit Tests:**
-   ```bash
-   python -m unittest tests.test_pipeline
-   ```
-
-### Option 2: Run with Docker
-
-1. **Build Container:**
-   ```bash
-   docker build -t student-performance-predictor .
-   ```
-
-2. **Run Container:**
-   ```bash
-   docker run -p 8501:8501 student-performance-predictor
-   ```
-   Open `http://localhost:8501`.
-
-### Option 3: Deploy to Streamlit Community Cloud (Free)
-
-1. Go to [share.streamlit.io](https://share.streamlit.io).
-2. Connect your GitHub repository: `Dij06/Student_Performance_Predictor`.
-3. Set the Main file path to `app.py` and click **Deploy**!
-
----
-
-## Keeping the App Always Active (Prevent Sleeping)
-
-Streamlit Community Cloud automatically puts free apps to sleep after several days of inactivity. To keep your app active 24/7 without ever sleeping:
-
-### Method 1: Built-in GitHub Action Keep-Alive (Included)
-* This repository includes an automated workflow in `.github/workflows/keep_alive.yml` that pings your app every 6 hours.
-* **To set your exact app URL:**
-  1. Go to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions** -> **Variables**.
-  2. Click **New repository variable**.
-  3. Name: `STREAMLIT_APP_URL`
-  4. Value: Your deployed Streamlit URL (e.g. `https://your-app-name.streamlit.app`).
-
-### Method 2: UptimeRobot (Free 5-Minute Ping — Recommended)
-1. Sign up for a free account at [uptimerobot.com](https://uptimerobot.com).
-2. Click **Add New Monitor**.
-3. Select **Monitor Type:** `HTTP(s)`.
-4. Enter your deployed Streamlit URL.
-5. Set **Monitoring Interval:** `5 minutes` or `15 minutes`.
-6. Click **Create Monitor**. Your app will stay awake 24/7 with zero maintenance!
