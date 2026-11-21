@@ -1,5 +1,11 @@
 # Student Performance Prediction & Risk Dashboard
 
+[![CI Pipeline](https://github.com/Dij06/Student_Performance_Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/Dij06/Student_Performance_Predictor/actions)
+![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B.svg)
+![Random Forest](https://img.shields.io/badge/Model-Random%20Forest-green.svg)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Dij06/Student_Performance_Predictor/blob/main/Student_Performance_Prediction.ipynb)
+
 An AI-powered academic decision-support platform built using **Streamlit** and a **Random Forest Classifier** trained on the UCI Student Performance benchmark dataset.
 
 The system predicts final exam outcomes (Pass vs. Fail), visualizes multi-cohort exploratory data (1,044 students across Mathematics and Portuguese), benchmarks machine learning algorithms, explains individual predictions via SHAP, and simulates how study habits and attendance influence passing chances.
@@ -10,6 +16,9 @@ The system predicts final exam outcomes (Pass vs. Fail), visualizes multi-cohort
 
 ```text
 Student_Performance_Streamlit/
+│
+├── .github/workflows/
+│   └── ci.yml                        # GitHub Actions automated CI test workflow
 │
 ├── .streamlit/
 │   └── config.toml                   # Streamlit custom theme & server configuration
@@ -29,6 +38,8 @@ Student_Performance_Streamlit/
 │   └── test_pipeline.py              # Automated unit tests for data, ML, and simulations
 │
 ├── app.py                            # Main Streamlit application entry point
+├── Dockerfile                        # Containerized production deployment
+├── .dockerignore                     # Docker build exclusions
 ├── requirements.txt                  # Python package dependencies
 ├── README.md                         # Documentation
 └── .gitignore                        # Git ignore rules
@@ -78,18 +89,39 @@ Student_Performance_Streamlit/
 
 ## How to Run
 
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+### Option 1: Run Locally
 
-### 2. Run the Dashboard
-```bash
-streamlit run app.py
-```
-Open your browser at `http://localhost:8501` (or the port displayed in your terminal).
+1. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 3. Run Automated Unit Tests
-```bash
-python -m unittest tests.test_pipeline
-```
+2. **Launch Application:**
+   ```bash
+   streamlit run app.py
+   ```
+   Open your browser at `http://localhost:8501`.
+
+3. **Run Automated Unit Tests:**
+   ```bash
+   python -m unittest tests.test_pipeline
+   ```
+
+### Option 2: Run with Docker
+
+1. **Build Container:**
+   ```bash
+   docker build -t student-performance-predictor .
+   ```
+
+2. **Run Container:**
+   ```bash
+   docker run -p 8501:8501 student-performance-predictor
+   ```
+   Open `http://localhost:8501`.
+
+### Option 3: Deploy to Streamlit Community Cloud (Free)
+
+1. Go to [share.streamlit.io](https://share.streamlit.io).
+2. Connect your GitHub repository: `Dij06/Student_Performance_Predictor`.
+3. Set the Main file path to `app.py` and click **Deploy**!
