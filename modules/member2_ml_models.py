@@ -67,26 +67,39 @@ def preprocess_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
     if "passed" not in df.columns and "G3" in df.columns:
         df["passed"] = (df["G3"] >= 10).astype(int)
 
-    # Encode binary columns if string
+    # Robustly convert binary yes/no columns to integer 0/1 regardless of dtype
     for col in ["schoolsup", "famsup", "higher", "internet"]:
-        if col in df.columns and df[col].dtype == object:
-            df[col] = (df[col].str.lower() == "yes").astype(int)
+        if col in df.columns:
+            df[col] = (
+                df[col]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .map({"yes": 1, "no": 0, "true": 1, "false": 0, "1": 1, "0": 0})
+                .fillna(0)
+                .astype(int)
+            )
 
     # Feature Engineering
     if "parent_edu" not in df.columns:
-        medu = df["Medu"] if "Medu" in df.columns else 2
-        fedu = df["Fedu"] if "Fedu" in df.columns else 2
+        medu = pd.to_numeric(df["Medu"], errors="coerce").fillna(2) if "Medu" in df.columns else 2
+        fedu = pd.to_numeric(df["Fedu"], errors="coerce").fillna(2) if "Fedu" in df.columns else 2
         df["parent_edu"] = (medu + fedu) / 2.0
 
     if "alcohol" not in df.columns:
-        dalc = df["Dalc"] if "Dalc" in df.columns else 1
-        walc = df["Walc"] if "Walc" in df.columns else 1
+        dalc = pd.to_numeric(df["Dalc"], errors="coerce").fillna(1) if "Dalc" in df.columns else 1
+        walc = pd.to_numeric(df["Walc"], errors="coerce").fillna(1) if "Walc" in df.columns else 1
         df["alcohol"] = (dalc + walc) / 2.0
 
     if "score_momentum" not in df.columns:
-        g1 = df["G1"] if "G1" in df.columns else 10
-        g2 = df["G2"] if "G2" in df.columns else 10
+        g1 = pd.to_numeric(df["G1"], errors="coerce").fillna(10) if "G1" in df.columns else 10
+        g2 = pd.to_numeric(df["G2"], errors="coerce").fillna(10) if "G2" in df.columns else 10
         df["score_momentum"] = g2 - g1
+
+    # Guarantee all feature columns are strictly numeric floats/ints
+    for f in STAGE_3_FEATURES:
+        if f in df.columns:
+            df[f] = pd.to_numeric(df[f], errors="coerce").fillna(0)
 
     return df
 
@@ -209,6 +222,7 @@ def predict_student(student_dict: dict, stage: int = 3) -> dict:
     for f in feats:
         if f not in df_student.columns:
             df_student[f] = 0
+        df_student[f] = pd.to_numeric(df_student[f], errors="coerce").fillna(0)
     df_student = df_student[feats]
 
     # Predict with Calibrated Classifier
@@ -300,6 +314,7 @@ def simulate_study_time(student_dict: dict, stage: int = 3) -> pd.DataFrame:
         for f in feats:
             if f not in df.columns:
                 df[f] = 0
+            df[f] = pd.to_numeric(df[f], errors="coerce").fillna(0)
         p = round(float(cal_model.predict_proba(df[feats])[0][pass_idx]) * 100, 1)
         records.append({"Study_Time": labels[s_level], "Pass_Chance": p})
 
@@ -328,6 +343,7 @@ def simulate_absences(student_dict: dict, max_abs: int = 26, stage: int = 3) -> 
         for f in feats:
             if f not in df.columns:
                 df[f] = 0
+            df[f] = pd.to_numeric(df[f], errors="coerce").fillna(0)
         p = round(float(cal_model.predict_proba(df[feats])[0][pass_idx]) * 100, 1)
         records.append({"Absences": a, "Pass_Chance": p})
 
