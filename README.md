@@ -125,3 +125,25 @@ Student_Performance_Streamlit/
 1. Go to [share.streamlit.io](https://share.streamlit.io).
 2. Connect your GitHub repository: `Dij06/Student_Performance_Predictor`.
 3. Set the Main file path to `app.py` and click **Deploy**!
+
+---
+
+## Keeping the App Always Active (Prevent Sleeping)
+
+Streamlit Community Cloud automatically puts free apps to sleep after several days of inactivity. To keep your app active 24/7 without ever sleeping:
+
+### Method 1: Built-in GitHub Action Keep-Alive (Included)
+* This repository includes an automated workflow in `.github/workflows/keep_alive.yml` that pings your app every 6 hours.
+* **To set your exact app URL:**
+  1. Go to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions** -> **Variables**.
+  2. Click **New repository variable**.
+  3. Name: `STREAMLIT_APP_URL`
+  4. Value: Your deployed Streamlit URL (e.g. `https://your-app-name.streamlit.app`).
+
+### Method 2: UptimeRobot (Free 5-Minute Ping — Recommended)
+1. Sign up for a free account at [uptimerobot.com](https://uptimerobot.com).
+2. Click **Add New Monitor**.
+3. Select **Monitor Type:** `HTTP(s)`.
+4. Enter your deployed Streamlit URL.
+5. Set **Monitoring Interval:** `5 minutes` or `15 minutes`.
+6. Click **Create Monitor**. Your app will stay awake 24/7 with zero maintenance!

@@ -1,0 +1,39 @@
+name: Keep App Alive
+
+on:
+  schedule:
+    # Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: 'Streamlit App URL to ping'
+        required: false
+        default: ''
+
+jobs:
+  ping-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Streamlit Cloud to Prevent Sleeping
+        run: |
+          TARGET_URL="${{ github.event.inputs.app_url || vars.STREAMLIT_APP_URL || secrets.STREAMLIT_APP_URL }}"
+          
+          if [ -z "$TARGET_URL" ]; then
+            echo "No custom STREAMLIT_APP_URL provided. Checking standard subdomains..."
+            # Candidate URLs based on repo Dij06/Student_Performance_Predictor
+            URLS=(
+              "https://student-performance-predictor.streamlit.app"
+              "https://student-performance-predictor-dij06.streamlit.app"
+              "https://dij06-student-performance-predictor.streamlit.app"
+            )
+          else
+            URLS=("$TARGET_URL")
+          fi
+
+          for url in "${URLS[@]}"; do
+            echo "Pinging: $url"
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 30 "$url" || echo "failed")
+            echo "Response status from $url: $HTTP_STATUS"
+          done
+          echo "Keep-alive ping cycle completed successfully."
